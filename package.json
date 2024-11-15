@@ -1,23 +1,14 @@
-
-#### `package.json`
-
-Define the project’s dependencies and scripts.
-
-```json
 {
-  "name": "mt5-deriv-trading-app",
+  "name": "mt5-deriv-trading",
   "version": "1.0.0",
-  "description": "An app to open trades on MT5 via Deriv API.",
+  "description": "Automated trading app for Deriv and MetaTrader 5",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.1"
+    "axios": "^0.21.1"
   },
-  "keywords": [],
-  "author": "",
+  "author": "Your Name",
   "license": "ISC"
 }
