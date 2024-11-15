@@ -1,14 +1,13 @@
 {
-  "name": "mt5-deriv-trading",
+  "name": "mt5-deriv-trading-app",
   "version": "1.0.0",
-  "description": "Automated trading app for Deriv and MetaTrader 5",
   "main": "index.js",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^10.0.0",  // Add dotenv here
+    "express": "^4.17.1"
+  },
   "scripts": {
     "start": "node index.js"
-  },
-  "dependencies": {
-    "axios": "^0.21.1"
-  },
-  "author": "Your Name",
-  "license": "ISC"
+  }
 }
