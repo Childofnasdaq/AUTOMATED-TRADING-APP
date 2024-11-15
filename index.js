@@ -1,54 +1,54 @@
-require('dotenv').config();
 const express = require('express');
-const axios = require('axios');
 const app = express();
+const bodyParser = require('body-parser');
+const axios = require('axios');
+require('dotenv').config();
 
-app.use(express.json());
+// Middleware to parse JSON request bodies
+app.use(bodyParser.json());
 
-// Load environment variables
-const API_TOKEN = process.env.DERIV_API_TOKEN;
-const APP_ID = process.env.DERIV_APP_ID;
-const BASE_URL = `https://api.deriv.com`;
-
-// Endpoint to open a trade on MetaTrader5
-app.post('/mt5-trade', async (req, res) => {
-    const { symbol, volume, action } = req.body; // action can be "buy" or "sell"
-    
-    const tradeData = {
-        symbol: symbol || 'R_100', // Example symbol, adjust as needed
-        volume: volume || 0.1,     // Volume size for the trade
-        action: action || 'buy',   // Buy or sell
-        app_id: APP_ID
-    };
-
-    try {
-        // Make a request to Deriv API to open a trade
-        const response = await axios.post(
-            `${BASE_URL}/trade`,
-            tradeData,
-            {
-                headers: {
-                    Authorization: `Bearer ${API_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        // Respond to client with the result
-        res.json({
-            message: 'Trade executed successfully on MetaTrader5',
-            data: response.data
-        });
-    } catch (error) {
-        res.status(400).json({
-            error: 'Failed to execute trade on MetaTrader5',
-            details: error.response ? error.response.data : error.message
-        });
-    }
+// Root Route: Displays a welcome message
+app.get('/', (req, res) => {
+  res.status(200).send("Welcome to the MT5 Deriv Trading App. Use /api/mt5-trade to open trades.");
 });
 
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// Endpoint to open a trade on MetaTrader 5 via Deriv API
+app.post('/api/mt5-trade', async (req, res) => {
+  const { symbol, volume, action } = req.body;
+
+  // Validate input
+  if (!symbol || !volume || !action) {
+    return res.status(400).send("Missing required fields: symbol, volume, or action.");
+  }
+
+  // Ensure action is either 'buy' or 'sell'
+  if (!['buy', 'sell'].includes(action)) {
+    return res.status(400).send("Invalid action. Action must be 'buy' or 'sell'.");
+  }
+
+  try {
+    // Make a request to Deriv API to open a trade
+    const response = await axios.post(
+      'https://api.deriv.com/api/v1/mt5_trade',  // This is an example URL, replace with the actual endpoint
+      {
+        symbol: symbol,
+        volume: volume,
+        action: action,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.DERIV_API_TOKEN}` // Add the API token to the request header
+        }
+      }
+    );
+
+    // Send back the response from Deriv API
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error opening trade with Deriv API.");
+  }
 });
+
+// Set the app to listen on the correct port for Vercel
+module.exports = app;
