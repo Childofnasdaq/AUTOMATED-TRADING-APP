@@ -4,7 +4,7 @@
   "main": "index.js",
   "dependencies": {
     "axios": "^0.21.1",
-    "dotenv": "^10.0.0",  // Add dotenv here
+    "dotenv": "^10.0.0",  
     "express": "^4.17.1"
   },
   "scripts": {
