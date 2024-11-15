@@ -1,15 +1,10 @@
-// Import necessary libraries
 const express = require('express');
 const axios = require('axios');
-const dotenv = require('dotenv');
-
-// Initialize dotenv to use environment variables
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to parse JSON bodies in requests
+// Use express.json() to parse incoming JSON requests
 app.use(express.json());
 
 // Welcome route
@@ -17,11 +12,11 @@ app.get('/', (req, res) => {
   res.send('Welcome to the MT5 Deriv Trading App. Use /api/mt5-trade to open trades.');
 });
 
-// POST route to open a trade on MetaTrader5 via Deriv API
+// POST route to handle trade requests
 app.post('/api/mt5-trade', async (req, res) => {
   const { symbol, volume, action } = req.body;
 
-  // Validate incoming data
+  // Validate incoming request
   if (!symbol || !volume || !action) {
     return res.status(400).send("Missing required fields: symbol, volume, or action.");
   }
@@ -31,20 +26,24 @@ app.post('/api/mt5-trade', async (req, res) => {
   }
 
   try {
-    // Send trade request to Deriv API (change URL if necessary)
+    // Replace with your actual Deriv API token
+    const derivApiToken = 'KThvGHHK8cAwXjT';
+
+    // Send trade request to Deriv API
     const response = await axios.post(
-      'https://api.deriv.com/api/v1/mt5_trade', // Ensure this is the correct Deriv API endpoint
+      'https://api.deriv.com/api/v1/mt5_trade', // Replace with correct API URL
       {
-        symbol: symbol,
-        volume: volume,
-        action: action,
+        symbol,
+        volume,
+        action,
       },
       {
         headers: {
-          'Authorization': `Bearer ${process.env.DERIV_API_TOKEN}`
-        }
+          'Authorization': `Bearer ${derivApiToken}`,
+        },
       }
     );
+
     res.status(200).json(response.data);
   } catch (error) {
     console.error(error);
@@ -52,7 +51,6 @@ app.post('/api/mt5-trade', async (req, res) => {
   }
 });
 
-// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
