@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MetaApi WebSocket Integration</title>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #444;
+        }
+
+        #status {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .connected {
+            color: green;
+        }
+
+        .disconnected {
+            color: red;
+        }
+
+        .status-message {
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>MetaApi WebSocket Integration</h1>
+</header>
+
+<div class="container">
+    <h2>Connect to MetaApi</h2>
+
+    <div class="form-group">
+        <label for="apiKey">Enter Your MetaApi Key</label>
+        <input type="text" id="apiKey" placeholder="eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI5M2Q5Mjk2ZmYxODVmNjdmY2VkNWE0NDBiZDE2ODEzZiIsInBlcm1pc3Npb25zIjpbXSwiYWNjZXNzUnVsZXMiOlt7ImlkIjoidHJhZGluZy1hY2NvdW50LW1hbmFnZW1lbnQtYXBpIiwibWV0aG9kcyI6WyJ0cmFkaW5nLWFjY291bnQtbWFuYWdlbWVudC1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibWV0YWFwaS1yZXN0LWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibWV0YWFwaS1ycGMtYXBpIiwibWV0aG9kcyI6WyJtZXRhYXBpLWFwaTp3czpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoibWV0YWFwaS1yZWFsLXRpbWUtc3RyZWFtaW5nLWFwaSIsIm1ldGhvZHMiOlsibWV0YWFwaS1hcGk6d3M6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6Im1ldGFzdGF0cy1hcGkiLCJtZXRob2RzIjpbIm1ldGFzdGF0cy1hcGk6cmVzdDpwdWJsaWM6KjoqIl0sInJvbGVzIjpbInJlYWRlciIsIndyaXRlciJdLCJyZXNvdXJjZXMiOlsiKjokVVNFUl9JRCQ6KiJdfSx7ImlkIjoicmlzay1tYW5hZ2VtZW50LWFwaSIsIm1ldGhvZHMiOlsicmlzay1tYW5hZ2VtZW50LWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJjb3B5ZmFjdG9yeS1hcGkiLCJtZXRob2RzIjpbImNvcHlmYWN0b3J5LWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIiwid3JpdGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19LHsiaWQiOiJtdC1tYW5hZ2VyLWFwaSIsIm1ldGhvZHMiOlsibXQtbWFuYWdlci1hcGk6cmVzdDpkZWFsaW5nOio6KiIsIm10LW1hbmFnZXItYXBpOnJlc3Q6cHVibGljOio6KiJdLCJyb2xlcyI6WyJyZWFkZXIiLCJ3cml0ZXIiXSwicmVzb3VyY2VzIjpbIio6JFVTRVJfSUQkOioiXX0seyJpZCI6ImJpbGxpbmctYXBpIiwibWV0aG9kcyI6WyJiaWxsaW5nLWFwaTpyZXN0OnB1YmxpYzoqOioiXSwicm9sZXMiOlsicmVhZGVyIl0sInJlc291cmNlcyI6WyIqOiRVU0VSX0lEJDoqIl19XSwidG9rZW5JZCI6IjIwMjEwMjEzIiwiaW1wZXJzb25hdGVkIjpmYWxzZSwicmVhbFVzZXJJZCI6IjkzZDkyOTZmZjE4NWY2N2ZjZWQ1YTQ0MGJkMTY4MTNmIiwiaWF0IjoxNzMxNzY5MzAwfQ.ZL5GFoo9AoQXhDs4ChddQRqB31_NvhiMsKR-Xnq0i1nOWQiAD3ETGX-ze5wOt-R4LOs2MMrKdJ_mHb6hD3JfWuw036PZUXw0RhFgWsepACHN2jLSkpy8n91A_c-4dOnp3GX_TfjgBypaIYSW61ody7-5MYlOnQAHxrDz6kXSTQz6hFQrbA0kQbWdMCW_EVi6cLtKQ8Zkxlxf4lEQPolYC_2P5AcmRKPP0S1UwwL19-C9SVkNbvkEWAtd-mOotl5aWRIhXmKcpEsKqsYzXrhk4RS_5DEZgHDgSFA9aVbzvUlKqh7tYBUbXRxyrXSw3i7Su_F2EXo26efOAloGRuAtmwFjI9eH3KvC_nKH1jcVyUnShnz8MHCmUv1tCzYJi_lV6qeQ8M2RwXm2c7DFZ6tnDOtErWa3mz_ooZ4Sj0W5z8csEH79fLu454I7Mp5N3K19V_GVQmCdmX0_BivnMXjdEns0mD7HmLNUkTvEpdml1cx82N0139dJSVj2cF7K1wbx9GJzyUmYhgmVof9CfZxQxLhvvEDY1ZM3R0HEluvbz6sWq6TLJFi69_M4vNZdIzWhDLieUnrGoYiG11wBf58nGNfU7LRr-haHrMEGpXPyNhGGzitgpzTXxjcMeaDuHOIpCn8Zv14ePylHEp4GrnpC6m9mgIT1NECcPZu17kLh9hY">
+    </div>
+
+    <button id="connectBtn">Connect</button>
+
+    <div id="status">
+        <span id="connectionStatus" class="disconnected">Not connected</span>
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('connectBtn').addEventListener('click', connectToMetaApi);
+
+    function connectToMetaApi() {
+        const apiKey = document.getElementById('apiKey').value;
+        if (!apiKey) {
+            alert('Please enter your MetaApi API Key.');
+            return;
+        }
+
+        // WebSocket URL for MetaApi (example)
+        const wsUrl = `https://app.metaapi.cloud/configure-trading-account-credentials/7ffde701-ac4a-4efd-aca7-d0bd36cb0fa8/6ZEcWLEgwiADyZEYjcdgmFwZ46MvcC4esNZfRYJeuwpDMCnG3Hz4XyWbFgKTgv8i`;
+
+        const socket = new WebSocket(wsUrl);
+
+        socket.onopen = function () {
+            document.getElementById('connectionStatus').classList.remove('disconnected');
+            document.getElementById('connectionStatus').classList.add('connected');
+            document.getElementById('connectionStatus').textContent = 'Connected to MetaApi!';
+            document.getElementById('statusMessage').textContent = 'Successfully connected via WebSocket.';
+        };
+
+        socket.onclose = function () {
+            document.getElementById('connectionStatus').classList.remove('connected');
+            document.getElementById('connectionStatus').classList.add('disconnected');
+            document.getElementById('connectionStatus').textContent = 'Connection closed';
+            document.getElementById('statusMessage').textContent = 'WebSocket connection closed.';
+        };
+
+        socket.onerror = function (error) {
+            document.getElementById('connectionStatus').classList.remove('connected');
+            document.getElementById('connectionStatus').classList.add('disconnected');
+            document.getElementById('connectionStatus').textContent = 'Connection error';
+            document.getElementById('statusMessage').textContent = 'Error with WebSocket connection: ' + error.message;
+        };
+
+        socket.onmessage = function (event) {
+            console.log('Received message from MetaApi:', event.data);
+            document.getElementById('statusMessage').textContent = 'Received message: ' + event.data;
+        };
+    }
+</script>
+
+</body>
+</html>
